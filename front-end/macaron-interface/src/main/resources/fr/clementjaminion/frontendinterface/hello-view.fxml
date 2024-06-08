@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<VBox alignment="CENTER" prefHeight="300.0" prefWidth="600.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.clementjaminion.frontendinterface.HelloController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+   <children>
+      <Text fill="#0635ab" fontSmoothingType="LCD" smooth="false" strokeType="OUTSIDE" strokeWidth="0.0" text="Taste the best Macaron of your life !" textAlignment="CENTER">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Text>
+      <Text fontSmoothingType="LCD" strokeType="OUTSIDE" strokeWidth="0.0" text="Choose your order" textAlignment="CENTER">
+         <font>
+            <Font name="System Italic" size="15.0" />
+         </font>
+      </Text>
+      <GridPane minHeight="200.0" minWidth="600.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="NEVER" maxWidth="194.0" minWidth="10.0" percentWidth="33.3" prefWidth="178.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="246.0" minWidth="10.0" percentWidth="33.3" prefWidth="243.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="100.0" minHeight="10.0" percentHeight="50.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="100.0" minHeight="10.0" percentHeight="50.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Button fx:id="taste_choice1" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#raspberry" prefHeight="100.0" prefWidth="200.0" stylesheets="@style_hello.css" text="Rasberries" textAlignment="CENTER" textFill="#f8f0ed00">
+               <styleClass>
+                  <String fx:value="taste_choice" />
+               </styleClass>
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
+            <Button fx:id="taste_choice2" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#blackberryButton" prefHeight="100.0" prefWidth="200.0" stylesheets="@style_hello.css" text="Blackberries" GridPane.columnIndex="1">
+               <styleClass>
+                  <String fx:value="taste_choice" />
+               </styleClass>
+            </Button>
+            <Button fx:id="taste_choice3" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#redBerryButton" prefHeight="100.0" prefWidth="200.0" stylesheets="@style_hello.css" text="Redberries" GridPane.columnIndex="2">
+               <styleClass>
+                  <String fx:value="taste_choice" />
+               </styleClass>
+            </Button>
+            <Button fx:id="taste_choice4" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#grapeButton" prefHeight="100.0" prefWidth="200.0" stylesheets="@style_hello.css" text="Grappes" GridPane.rowIndex="1">
+               <styleClass>
+                  <String fx:value="taste_choice" />
+               </styleClass>
+            </Button>
+            <Button fx:id="taste_choice5" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#cranberryButton" prefHeight="100.0" prefWidth="200.0" stylesheets="@style_hello.css" text="Cranberries" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <styleClass>
+                  <String fx:value="taste_choice" />
+               </styleClass>
+            </Button>
+            <Button fx:id="taste_choice6" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#strawberryButton" prefHeight="100.0" prefWidth="200.0" stylesheets="@style_hello.css" text="Strawberries" GridPane.columnIndex="2" GridPane.rowIndex="1">
+               <styleClass>
+                  <String fx:value="taste_choice" />
+               </styleClass>
+            </Button>
+         </children>
+      </GridPane>
+      <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0">
+         <children>
+            <ToggleButton mnemonicParsing="false" onAction="#openProviderScreen" text="Provider" />
+         </children>
+      </HBox>
+   </children>
+</VBox>

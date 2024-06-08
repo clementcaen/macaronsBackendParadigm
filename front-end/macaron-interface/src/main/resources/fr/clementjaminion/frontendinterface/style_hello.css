@@ -1,0 +1,34 @@
+#taste_choice1{
+
+    -fx-background-radius: 20;
+    -fx-background-image: url('img/raspberry.jpg');
+    -fx-background-repeat: stretch;
+
+}
+#taste_choice2 {
+    -fx-background-image: url('img/blackberry.jpg');
+}
+#taste_choice3 {
+    -fx-background-image: url('img/red.jpg');
+}
+#taste_choice4 {
+    -fx-background-image: url('img/grapes.jpg');
+}
+#taste_choice5 {
+    -fx-background-image: url('img/cranberries.jpg');
+}
+#taste_choice6 {
+    -fx-background-image: url('img/strawberries.jpg');
+
+}
+.taste_choice{
+    /*-fx-background-image: url('img/red.png');*/
+    -fx-text-fill: #aaaac8;
+    -fx-border-color: #ffffff;
+    -fx-font-size: 22;
+    -fx-font-weight: bold;
+    /*-fx-border-width: 1px;
+    -fx-border-radius: 20 20 20 20;
+    */
+
+}
