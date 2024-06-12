@@ -9,6 +9,7 @@ module fr.clementjaminion.frontendinterface {
     requires jakarta.validation;
     requires jakarta.annotation;
     requires spring.webmvc;
+    requires org.slf4j;
 
 
     opens fr.clementjaminion.frontendinterface to javafx.fxml;

@@ -2,7 +2,18 @@ spring:
   application:
     name: macaronsBackend
   datasource:
-      url: jdbc:postgresql://localhost:5432/macaron
+      url: jdbc:postgresql://localhost:5432/macaron_paradigm
       username: macaron
       password: macaron
+
+logging:
+  level:
+    root: INFO
+    org:
+      springframework:
+        security: DEBUG
+    fr:
+      clementjaminion:
+        macaronsbackend: DEBUG
+
 

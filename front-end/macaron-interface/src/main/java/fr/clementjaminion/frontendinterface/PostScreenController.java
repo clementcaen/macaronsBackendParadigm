@@ -7,7 +7,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -16,6 +19,7 @@ import java.util.Objects;
 
 public class PostScreenController {
     public static final String DISPENSER_NAME = "dispenser1";
+
     @FXML
     private TextField macaronName;
 
@@ -35,22 +39,24 @@ public class PostScreenController {
         macaronName.setText("");
     }
 
-
-    public void initializeByHelloController(String taste){
-        RestTemplate restTemplate = RestpreparationForJSON.preparationRequest();
+    public void initializeByHelloController(String taste) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", LoginController.getAuthToken());
 
         String restEndpointUrl = "http://localhost:8080/v1/macarons/" + taste;
 
         try {
-            ResponseEntity<MacaronDtoForJavaFx> macaronDto =
-                    restTemplate.getForEntity(restEndpointUrl, MacaronDtoForJavaFx.class);
-            macaronName.setText(Objects.requireNonNull(macaronDto.getBody()).taste());
-            if(macaronDto.hasBody()) {
-                stock.setText(String.valueOf(macaronDto.getBody().stock()));
-                price.setText(String.valueOf(macaronDto.getBody().unitPrice()));
+            HttpEntity<String> request = new HttpEntity<>(headers);
+            ResponseEntity<MacaronDtoForJavaFx> response = restTemplate.exchange(restEndpointUrl, HttpMethod.GET, request, MacaronDtoForJavaFx.class);
+
+            if (response.getStatusCode().is2xxSuccessful() && response.hasBody()) {
+                MacaronDtoForJavaFx macaronDto = response.getBody();
+                macaronName.setText(Objects.requireNonNull(macaronDto).taste());
+                stock.setText(String.valueOf(macaronDto.stock()));
+                price.setText(String.valueOf(macaronDto.unitPrice()));
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Error: " + e);
         }
     }
@@ -59,6 +65,7 @@ public class PostScreenController {
         try {
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = RestpreparationForJSON.preparationHeaders();
+            headers.set("Authorization", LoginController.getAuthToken());
 
             String restEndpointUrl = "http://localhost:8080/v1/sales";
             CreateSaleDto createSaleDto = new CreateSaleDto(
@@ -70,14 +77,16 @@ public class PostScreenController {
             );
             HttpEntity<String> requestEntity = new HttpEntity<>(createSaleDto.toJson(), headers);
 
-            ResponseEntity<SaleDtoForJavaFx> saleDtoForJavaFxResponseEntity =
-                    restTemplate.postForEntity(restEndpointUrl, requestEntity, SaleDtoForJavaFx.class);
+            ResponseEntity<SaleDtoForJavaFx> response = restTemplate.postForEntity(restEndpointUrl, requestEntity, SaleDtoForJavaFx.class);
 
             returnInformations.setStyle("-fx-text-fill: green;");
-            if (saleDtoForJavaFxResponseEntity.hasBody()) {
-                returnInformations.setText("Order confirmed ! Now : " + Objects.requireNonNull(saleDtoForJavaFxResponseEntity.getBody()).firstnameReservation() + " ordered " + saleDtoForJavaFxResponseEntity.getBody().saleEntryDto().getFirst().numberOfMacarons() + " " + Objects.requireNonNull(saleDtoForJavaFxResponseEntity.getBody().saleEntryDto().getFirst().macaron().taste()) + " macarons on " + Objects.requireNonNull(saleDtoForJavaFxResponseEntity.getBody()).date());
-                stock.setText(String.valueOf(saleDtoForJavaFxResponseEntity.getBody().saleEntryDto().getFirst().macaron().stock()));//update of the stock
-                price.setText(String.valueOf(saleDtoForJavaFxResponseEntity.getBody().saleEntryDto().getFirst().macaron().unitPrice()));
+            if (response.hasBody()) {
+                SaleDtoForJavaFx saleDto = response.getBody();
+                returnInformations.setText("Order confirmed! Now: " + Objects.requireNonNull(saleDto).firstnameReservation() + " ordered " +
+                        saleDto.saleEntryDto().get(0).numberOfMacarons() + " " +
+                        saleDto.saleEntryDto().get(0).macaron().taste() + " macarons on " + saleDto.date());
+                stock.setText(String.valueOf(saleDto.saleEntryDto().get(0).macaron().stock())); // Update the stock
+                price.setText(String.valueOf(saleDto.saleEntryDto().get(0).macaron().unitPrice()));
             }
 
         } catch (Exception e) {
