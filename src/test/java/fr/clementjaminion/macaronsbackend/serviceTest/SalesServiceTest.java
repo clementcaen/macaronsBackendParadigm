@@ -6,6 +6,7 @@ import fr.clementjaminion.macaronsbackend.models.dto.returns.SaleDto;
 import fr.clementjaminion.macaronsbackend.repositories.SalesRepo;
 import fr.clementjaminion.macaronsbackend.repositories.SalesStatusRepository;
 import fr.clementjaminion.macaronsbackend.service.SalesService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,16 +18,12 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 class SalesServiceTest {
 
     @Mock
     private SalesRepo salesRepository;
-
-    @Mock
-    private SalesStatusRepository salesStatusRepository;
 
     @InjectMocks
     private SalesService salesService;
@@ -64,5 +61,10 @@ class SalesServiceTest {
         assertEquals(statusWaiting, saleDto.status());
         assertEquals(1, saleDto.saleEntryDto().size());
         assertEquals("strawberry", saleDto.saleEntryDto().get(0).macaron().taste());
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        MockitoAnnotations.openMocks(this).close();
     }
 }
