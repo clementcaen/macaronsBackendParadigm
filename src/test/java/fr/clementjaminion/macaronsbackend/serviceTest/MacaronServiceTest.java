@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
-public class 
+class
 MacaronServiceTest {
     @InjectMocks
     private MacaronService macaronService;
@@ -55,12 +55,12 @@ MacaronServiceTest {
     @Test
     void getAllChocolates_withResult() {
         // Given
-        Mockito.when(macaronRepository.findAll()).thenReturn(List.of(new Macaron( "framboise", new BigDecimal("0.50"), 10)));
+        Mockito.when(macaronRepository.findAll()).thenReturn(List.of(new Macaron( "strawberry", new BigDecimal("0.50"), 10)));
 
         // When
         List<MacaronDto> result = macaronService.getAllMacarons();
 
         // Then
-        Assertions.assertEquals(List.of(new MacaronDto( "framboise", new BigDecimal("0.50"), 10)), result);
+        Assertions.assertEquals(List.of(new MacaronDto( "strawberry", new BigDecimal("0.50"), 10)), result);
     }
 }
