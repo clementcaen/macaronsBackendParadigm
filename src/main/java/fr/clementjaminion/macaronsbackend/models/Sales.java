@@ -33,6 +33,7 @@ public class Sales {
         this.totalPricePaid = BigDecimal.ZERO;
         this.date = LocalDate.now();
         this.status = status;
+        this.setSalesEntries(List.of());//create an empty list
     }
 
     public int getId() {
