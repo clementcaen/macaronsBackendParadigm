@@ -14,6 +14,8 @@ import fr.clementjaminion.macaronsbackend.repositories.SalesStatusRepository;
 import fr.clementjaminion.macaronsbackend.models.dto.returns.SaleEntryDto;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -87,6 +89,7 @@ public class SalesService {
     @CacheEvict(value = {"allSales", "sales"}, allEntries = true)
     @Transactional
     public SaleDto createSale(CreateSaleDto createSaleDto) throws MacaronNotFoundException, MacaronBadRequestException, MacaronsFunctionalException {
+        //check is the number of macaron is in stock and the tastes exists
         macaronService.verifyStock(createSaleDto.createSalesEntriesDtos());
 
         Sales saleCreated = createEmptySaleForSomeone(createSaleDto.firstnameReservation());
@@ -95,14 +98,14 @@ public class SalesService {
         for (CreateSaleEntryDto saleEntryDto : createSaleDto.createSalesEntriesDtos()) {
             Macaron mymacaron = macaronRepo.findByTaste(saleEntryDto.tasteMacaron())
                     .orElseThrow(() -> new MacaronsFunctionalException("Macaron not found", "MACARON_NOT_FOUND"));
-            mymacaron.setStock(mymacaron.getStock() - saleEntryDto.numberOfMacarons());
-            mymacaron = macaronRepo.save(mymacaron);
+            mymacaron.setStock(mymacaron.getStock() - saleEntryDto.numberOfMacarons());//reduce the stock of the macaron
+            mymacaron = macaronRepo.save(mymacaron);//saving macaron with his stock updated
             SaleEntry apply = new SaleEntry(saleEntryDto.numberOfMacarons(), saleCreated, mymacaron);
-            apply = saleEntryRepo.save(apply);
+            apply = saleEntryRepo.save(apply);//saving the new sale entry
             saleEntries.add(apply);
         }
         saleCreated.setSalesEntries(saleEntries);
-        saleCreated.setStatus(salesStatusRepository.findById(SalesStatusEnum.WAITING)
+        saleCreated.setStatus(salesStatusRepository.findById(SalesStatusEnum.WAITING)//update the status
                 .orElseThrow(() -> new MacaronsFunctionalException(STATUSNOTFOUNDTEXT, STATUSNOTFOUNDCODE)));
         return new SaleDto(salesRepository.save(saleCreated));
     }
@@ -132,6 +135,7 @@ public class SalesService {
                 .orElseThrow(() -> new MacaronNotFoundException(SALENOTFOUNDTEXT, SALENOTFOUNDCODE));
         sale.setTotalPricePaid(BigDecimal.valueOf((sale.getTotalPricePaid().doubleValue() + paymentPaid)));
         sale = salesRepository.save(sale);
+        //verification amount total paid else throw exception with keeping possibility to continue the payment
         double priceAsked = calculatePrice(id).doubleValue();
         if (sale.getTotalPricePaid().doubleValue() < priceAsked)
             throw new MacaronsFunctionalException("Amount paid is not finish please:"+sale.getTotalPricePaid().doubleValue()+" on "+priceAsked+" total", "AMOUNT_NOT_ENOUGH");
