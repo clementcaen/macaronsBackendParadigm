@@ -1,14 +1,21 @@
 package fr.clementjaminion.macaronsbackend.integration;
 
+import fr.clementjaminion.macaronsbackend.exceptions.MacaronNotFoundException;
+import fr.clementjaminion.macaronsbackend.exceptions.MacaronsFunctionalException;
 import fr.clementjaminion.macaronsbackend.models.*;
+import fr.clementjaminion.macaronsbackend.models.dto.returns.SaleDto;
 import fr.clementjaminion.macaronsbackend.repositories.SalesRepo;
+import fr.clementjaminion.macaronsbackend.repositories.SalesStatusRepository;
+import fr.clementjaminion.macaronsbackend.service.SalesService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -31,6 +39,13 @@ class SalesIntegrationTest {
 
     @Autowired
     private SalesRepo salesRepository;
+
+
+    @Autowired
+    private SalesService salesService;
+
+    @Autowired
+    private SalesStatusRepository statusRepository;
 
     @BeforeEach
     void setUp() {
@@ -95,5 +110,21 @@ class SalesIntegrationTest {
                         + "\"date\":\"" + sales.getDate().toString() + "\","
                         + "\"status\":{\"code\":\"WAITING\"}"
                         + "}"));
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    void testLazyLoading() throws MacaronNotFoundException, MacaronsFunctionalException {
+        SalesStatus statusNoEntry = new SalesStatus(SalesStatusEnum.NOENTRY);
+        statusRepository.save(statusNoEntry);
+
+        Sales savedSales = salesService.createEmptySaleForSomeone("user");
+
+        SaleDto fetchedSales = salesService.getOneSale(savedSales.getId());
+        assertNotNull(fetchedSales);
+        assertNotNull(fetchedSales.saleEntryDto());
+        assertEquals(0, fetchedSales.saleEntryDto().size());
     }
 }

@@ -8,11 +8,11 @@ import jakarta.persistence.*;
 @Table(name = "sale_entry")
 public class SaleEntry {
     @Id
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "sales_id")
     private Sales sales;
     @Id
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "macaron_taste")
     private Macaron macaron;
     private int numberMacaron;

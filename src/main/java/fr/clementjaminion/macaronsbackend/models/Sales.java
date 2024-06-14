@@ -15,7 +15,7 @@ public class Sales {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Nullable
-    @OneToMany(mappedBy = "sales", orphanRemoval = true)
+    @OneToMany(mappedBy = "sales", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SaleEntry> salesEntries;
     private String firstnameReservation;
     private BigDecimal totalPricePaid;
