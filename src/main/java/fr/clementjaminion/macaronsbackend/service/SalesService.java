@@ -12,6 +12,8 @@ import fr.clementjaminion.macaronsbackend.repositories.SaleEntryRepo;
 import fr.clementjaminion.macaronsbackend.repositories.SalesRepo;
 import fr.clementjaminion.macaronsbackend.models.dto.returns.SaleEntryDto;
 import fr.clementjaminion.macaronsbackend.repositories.SalesStatusRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -40,22 +42,21 @@ public class SalesService {
         this.saleEntryRepo = saleEntryRepo;
     }
 
-    public BigDecimal calculatePrice(
-            int saleId
-    ) throws MacaronNotFoundException {
+    @Cacheable(value = "salesPrice", key = "#saleId")
+    public BigDecimal calculatePrice(int saleId) throws MacaronNotFoundException {
         return salesRepository.findById(saleId)
-            .map(sales -> {
-                List<SaleEntry> saleEntries = sales.getSalesEntries();
-                if (saleEntries == null)
-                    return BigDecimal.ZERO;
-                double sum = saleEntries.stream()
-                    .mapToDouble(saleEntry -> saleEntry.getMacaron().getUnitPrice().doubleValue() * saleEntry.getNumberMacaron())
-                    .sum();
-                return BigDecimal.valueOf(sum);
-            }).orElseThrow(() -> new MacaronNotFoundException(SALENOTFOUNDTEXT, SALENOTFOUNDCODE));
+                .map(sales -> {
+                    List<SaleEntry> saleEntries = sales.getSalesEntries();
+                    if (saleEntries == null)
+                        return BigDecimal.ZERO;
+                    double sum = saleEntries.stream()
+                            .mapToDouble(saleEntry -> saleEntry.getMacaron().getUnitPrice().doubleValue() * saleEntry.getNumberMacaron())
+                            .sum();
+                    return BigDecimal.valueOf(sum);
+                }).orElseThrow(() -> new MacaronNotFoundException(SALENOTFOUNDTEXT, SALENOTFOUNDCODE));
     }
 
-
+    @Cacheable("allSales")
     public List<SaleDto> getAllSales() {
         return salesRepository.findAll().stream()
                 .map(sales -> {
@@ -68,6 +69,7 @@ public class SalesService {
                 .toList();
     }
 
+    @Cacheable(value = "sales", key = "#id")
     public SaleDto getOneSale(Integer id) throws MacaronNotFoundException {
         return salesRepository.findById(id)
                 .map(sales -> {
@@ -77,6 +79,7 @@ public class SalesService {
                 .orElseThrow(() -> new MacaronNotFoundException(SALENOTFOUNDTEXT, SALENOTFOUNDCODE));
     }
 
+    @CacheEvict(value = {"allSales", "sales"}, allEntries = true)
     public SaleDto createSale(CreateSaleDto createSaleDto) throws MacaronNotFoundException, MacaronBadRequestException, MacaronsFunctionalException {
         //check is the number of macaron is in stock and the tastes exists
         macaronService.verifyStock(createSaleDto.createSalesEntriesDtos());
@@ -98,12 +101,15 @@ public class SalesService {
                 .orElseThrow(() -> new MacaronsFunctionalException(STATUSNOTFOUNDTEXT, STATUSNOTFOUNDCODE)));
         return new SaleDto(salesRepository.save(saleCreated));
     }
+
+    @CacheEvict(value = {"allSales", "sales"}, allEntries = true)
     public Sales createEmptySaleForSomeone(String firstname) throws MacaronsFunctionalException {
         SalesStatus status = salesStatusRepository.findById(SalesStatusEnum.NOENTRY)
                 .orElseThrow(() -> new MacaronsFunctionalException(STATUSNOTFOUNDTEXT, STATUSNOTFOUNDCODE));
         return salesRepository.save(new Sales(firstname, status));
     }
 
+    @CacheEvict(value = {"allSales", "sales"}, allEntries = true)
     public SaleDto validateSale(Integer id) throws MacaronNotFoundException, MacaronsFunctionalException {
         Sales sale = salesRepository.findById(id)
                 .orElseThrow(() -> new MacaronNotFoundException(SALENOTFOUNDTEXT, SALENOTFOUNDCODE));
@@ -112,6 +118,7 @@ public class SalesService {
         return new SaleDto(salesRepository.save(sale));
     }
 
+    @CacheEvict(value = {"allSales", "sales", "salesPrice"}, allEntries = true)
     public SaleDto paySale(Integer id, double paymentPaid) throws MacaronNotFoundException, MacaronsFunctionalException {
         Sales sale = salesRepository.findById(id)
                 .orElseThrow(() -> new MacaronNotFoundException(SALENOTFOUNDTEXT, SALENOTFOUNDCODE));

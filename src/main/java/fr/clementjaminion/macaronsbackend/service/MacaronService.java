@@ -9,7 +9,7 @@ import fr.clementjaminion.macaronsbackend.models.dto.command.CreateSaleEntryDto;
 import fr.clementjaminion.macaronsbackend.models.dto.command.ModifyMacaronDto;
 import fr.clementjaminion.macaronsbackend.models.dto.returns.MacaronDto;
 import fr.clementjaminion.macaronsbackend.repositories.MacaronRepo;
-import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +28,7 @@ public class MacaronService {
         this.macaronRepository = macaronRepository;
     }
 
+    @CacheEvict(value = {"macarons", "allMacarons"}, allEntries = true)
     public MacaronDto createMacaron(
             CreateMacaronDto createMacaronDto
     ) throws MacaronsFunctionalException {
@@ -39,13 +40,14 @@ public class MacaronService {
         return new MacaronDto(newMacaron.getTaste(), newMacaron.getUnitPrice(), newMacaron.getStock());
 
     }
-    @Cacheable("macarons")
+    @Cacheable("allMacarons")
     public List<MacaronDto> getAllMacarons() {
         return macaronRepository.findAll().stream()
                 .map(MacaronDto::of)
                 .toList();
     }
 
+    @Cacheable(value = "macarons", key = "#taste")
     public MacaronDto getOneMacaron(String taste) throws MacaronNotFoundException {
         return macaronRepository.findByTaste(taste)
                 .map(MacaronDto::of)
@@ -67,11 +69,12 @@ public class MacaronService {
         }
     }
 
-    @Transactional
+    @CacheEvict(value = {"macarons", "allMacarons"}, key = "#taste")
     public void deleteOneMacaron(String taste) {
         macaronRepository.deleteByTaste(taste);
     }
 
+    @CacheEvict(value = {"macarons", "allMacarons"}, key = "#taste")
     public MacaronDto updateMacaron(String taste, ModifyMacaronDto modifyMacaronDto) throws MacaronNotFoundException {
         Optional<Macaron> macaronOptional = macaronRepository.findByTaste(taste);
         if (macaronOptional.isEmpty()) {
@@ -86,7 +89,7 @@ public class MacaronService {
         return new MacaronDto(macaron.getTaste(), macaron.getUnitPrice(), macaron.getStock());
     }
 
-
+    @CacheEvict(value = {"macarons", "allMacarons"}, key = "#taste")
     public MacaronDto addStockMacaron(String taste, int addingStock) throws MacaronNotFoundException {
         Optional<Macaron> macaronOptional = macaronRepository.findByTaste(taste);
         if (macaronOptional.isEmpty()) {
@@ -98,6 +101,7 @@ public class MacaronService {
         return new MacaronDto(macaron.getTaste(), macaron.getUnitPrice(), macaron.getStock());
     }
 
+    @CacheEvict(value = {"macarons", "allMacarons"}, key = "#taste")
     public MacaronDto reduceStockMacaron(String taste, Integer reducingStock) throws MacaronNotFoundException {
         Optional<Macaron> macaronOptional = macaronRepository.findByTaste(taste);
         if (macaronOptional.isEmpty()) {
