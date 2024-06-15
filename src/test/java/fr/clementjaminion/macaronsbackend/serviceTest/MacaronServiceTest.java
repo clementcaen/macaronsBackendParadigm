@@ -2,7 +2,7 @@ package fr.clementjaminion.macaronsbackend.serviceTest;
 
 import fr.clementjaminion.macaronsbackend.exceptions.MacaronsFunctionalException;
 import fr.clementjaminion.macaronsbackend.repositories.MacaronRepo;
-import fr.clementjaminion.macaronsbackend.service.MacaronService;
+import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronService;
 import fr.clementjaminion.macaronsbackend.models.Macaron;
 import fr.clementjaminion.macaronsbackend.models.dto.command.CreateMacaronDto;
 import fr.clementjaminion.macaronsbackend.models.dto.returns.MacaronDto;

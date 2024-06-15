@@ -3,16 +3,14 @@ package fr.clementjaminion.macaronsbackend.controllerTest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.clementjaminion.macaronsbackend.controller.MacaronController;
-import fr.clementjaminion.macaronsbackend.models.dto.command.CreateMacaronDto;
 import fr.clementjaminion.macaronsbackend.models.dto.returns.MacaronDto;
-import fr.clementjaminion.macaronsbackend.service.MacaronService;
+import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,9 +19,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(MacaronController.class)
 class MacaronControllerTest {
