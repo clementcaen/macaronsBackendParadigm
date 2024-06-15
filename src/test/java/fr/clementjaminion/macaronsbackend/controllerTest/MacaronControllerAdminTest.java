@@ -3,7 +3,8 @@ package fr.clementjaminion.macaronsbackend.controllerTest;
 import fr.clementjaminion.macaronsbackend.controller.MacaronControllerAdmin;
 import fr.clementjaminion.macaronsbackend.models.dto.command.CreateMacaronDto;
 import fr.clementjaminion.macaronsbackend.models.dto.returns.MacaronDto;
-import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronService;
+import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronManagingService;
+import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronStockManagingService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,11 @@ class MacaronControllerAdminTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private MacaronService macaronService;
+    private MacaronManagingService macaronManagingService;
+
+    @MockBean
+    private MacaronStockManagingService macaronStockManagingService;
+
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
@@ -36,7 +41,7 @@ class MacaronControllerAdminTest {
         CreateMacaronDto createMacaronDto = new CreateMacaronDto("raspberry", BigDecimal.valueOf(1.99), 100);
         MacaronDto macaronDto = new MacaronDto("raspberry", BigDecimal.valueOf(1.99), 100);
         //mocking the service to just test the controller
-        Mockito.when(macaronService.createMacaron(createMacaronDto))
+        Mockito.when(macaronManagingService.createMacaron(createMacaronDto))
                 .thenReturn(macaronDto);
 
         //when
@@ -65,7 +70,7 @@ class MacaronControllerAdminTest {
     void testAddStockMacaron() throws Exception {
         MacaronDto macaronDto = new MacaronDto("raspberry", BigDecimal.valueOf(1.99), 210);
 
-        Mockito.when(macaronService.addStockMacaron("raspberry", 10))
+        Mockito.when(macaronStockManagingService.addStockMacaron("raspberry", 10))
                 .thenReturn(macaronDto);
 
         mockMvc.perform(put("/manage/v1/macarons/raspberry/add")

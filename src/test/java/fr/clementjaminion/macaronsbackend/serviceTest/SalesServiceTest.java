@@ -4,7 +4,6 @@ import fr.clementjaminion.macaronsbackend.exceptions.MacaronNotFoundException;
 import fr.clementjaminion.macaronsbackend.models.*;
 import fr.clementjaminion.macaronsbackend.models.dto.returns.SaleDto;
 import fr.clementjaminion.macaronsbackend.repositories.SalesRepo;
-import fr.clementjaminion.macaronsbackend.repositories.SalesStatusRepository;
 import fr.clementjaminion.macaronsbackend.service.SalesService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

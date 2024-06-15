@@ -1,10 +1,8 @@
 package fr.clementjaminion.macaronsbackend.controllerTest;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.clementjaminion.macaronsbackend.controller.MacaronController;
 import fr.clementjaminion.macaronsbackend.models.dto.returns.MacaronDto;
-import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronService;
+import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronGettingService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,7 +17,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @WebMvcTest(MacaronController.class)
 class MacaronControllerTest {
@@ -27,7 +24,8 @@ class MacaronControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private MacaronService macaronService;
+    private MacaronGettingService macaronService;
+
 
     @Test
     @WithMockUser(username = "John Doe", roles = {"USER"})
@@ -41,8 +39,6 @@ class MacaronControllerTest {
         ).andReturn().getResponse();
 
         Assertions.assertEquals(200, response.getStatus());
-        List<MacaronDto> result = new ObjectMapper().readValue(response.getContentAsString(), new TypeReference<>() {
-        });
 
     }
 

@@ -2,10 +2,12 @@ package fr.clementjaminion.macaronsbackend.serviceTest;
 
 import fr.clementjaminion.macaronsbackend.exceptions.MacaronsFunctionalException;
 import fr.clementjaminion.macaronsbackend.repositories.MacaronRepo;
-import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronService;
+import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronGettingService;
+import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronManagingService;
 import fr.clementjaminion.macaronsbackend.models.Macaron;
 import fr.clementjaminion.macaronsbackend.models.dto.command.CreateMacaronDto;
 import fr.clementjaminion.macaronsbackend.models.dto.returns.MacaronDto;
+import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronStockManagingService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +23,11 @@ import java.util.List;
 class
 MacaronServiceTest {
     @InjectMocks
-    private MacaronService macaronService;
+    private MacaronManagingService macaronManagingService;
+    @InjectMocks
+    private MacaronGettingService macaronGettingService;
+    @InjectMocks
+    private MacaronStockManagingService macaronStockManagingService;
 
     @Mock
     MacaronRepo macaronRepository;
@@ -34,7 +40,7 @@ MacaronServiceTest {
                 .thenReturn(new Macaron("Rose", new BigDecimal("2.01"), 10));
 
         // When
-        MacaronDto result = macaronService.createMacaron(new CreateMacaronDto("Rose", new BigDecimal("2.01"), 10));
+        MacaronDto result = macaronManagingService.createMacaron(new CreateMacaronDto("Rose", new BigDecimal("2.01"), 10));
 
         // Then
         Assertions.assertEquals(new MacaronDto( "Rose", new BigDecimal("2.01"), 10), result);
@@ -46,7 +52,7 @@ MacaronServiceTest {
         // Given
 
         // When
-        List<MacaronDto> result = macaronService.getAllMacarons();
+        List<MacaronDto> result = macaronGettingService.getAllMacarons();
 
         // Then
         Assertions.assertTrue(result.isEmpty());
@@ -58,7 +64,7 @@ MacaronServiceTest {
         Mockito.when(macaronRepository.findAll()).thenReturn(List.of(new Macaron( "strawberry", new BigDecimal("0.50"), 10)));
 
         // When
-        List<MacaronDto> result = macaronService.getAllMacarons();
+        List<MacaronDto> result = macaronGettingService.getAllMacarons();
 
         // Then
         Assertions.assertEquals(List.of(new MacaronDto( "strawberry", new BigDecimal("0.50"), 10)), result);
