@@ -2,12 +2,10 @@ package fr.clementjaminion.macaronsbackend.serviceTest;
 
 import fr.clementjaminion.macaronsbackend.exceptions.MacaronsFunctionalException;
 import fr.clementjaminion.macaronsbackend.repositories.MacaronRepo;
-import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronGettingService;
-import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronManagingService;
+import fr.clementjaminion.macaronsbackend.service.macaron_service.*;
 import fr.clementjaminion.macaronsbackend.models.Macaron;
 import fr.clementjaminion.macaronsbackend.models.dto.command.CreateMacaronDto;
 import fr.clementjaminion.macaronsbackend.models.dto.returns.MacaronDto;
-import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronStockManagingService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,11 +21,11 @@ import java.util.List;
 class
 MacaronServiceTest {
     @InjectMocks
-    private MacaronManagingService macaronManagingService;
+    private MacaronManagingServiceImpl macaronManagingService;
     @InjectMocks
-    private MacaronGettingService macaronGettingService;
+    private MacaronGettingServiceImpl macaronGettingService;
     @InjectMocks
-    private MacaronStockManagingService macaronStockManagingService;
+    private MacaronStockManagingServiceImpl macaronStockManagingService;
 
     @Mock
     MacaronRepo macaronRepository;
@@ -61,12 +59,12 @@ MacaronServiceTest {
     @Test
     void getAllChocolates_withResult() {
         // Given
-        Mockito.when(macaronRepository.findAll()).thenReturn(List.of(new Macaron( "strawberry", new BigDecimal("0.50"), 10)));
+        Mockito.when(macaronRepository.findAll()).thenReturn(List.of(new Macaron( "vanilla", new BigDecimal("0.50"), 10)));
 
         // When
         List<MacaronDto> result = macaronGettingService.getAllMacarons();
 
         // Then
-        Assertions.assertEquals(List.of(new MacaronDto( "strawberry", new BigDecimal("0.50"), 10)), result);
+        Assertions.assertEquals(List.of(new MacaronDto( "vanilla", new BigDecimal("0.50"), 10)), result);
     }
 }

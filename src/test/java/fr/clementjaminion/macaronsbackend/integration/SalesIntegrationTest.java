@@ -9,7 +9,6 @@ import fr.clementjaminion.macaronsbackend.repositories.SalesStatusRepository;
 import fr.clementjaminion.macaronsbackend.service.SalesService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -70,10 +69,10 @@ class SalesIntegrationTest {
     @Test
     @WithMockUser(username = "user", roles = {"USER"})
     void testGetAllSales() throws Exception {
-        Macaron macaronstrawberry = new Macaron("strawberry", new BigDecimal("0.50"), 10);
+        Macaron macaronvanilla = new Macaron("vanilla", new BigDecimal("0.50"), 10);
         Macaron macaronchocolate = new Macaron("chocolate", new BigDecimal("0.30"), 10);
         Sales sales = new Sales("user", new SalesStatus(SalesStatusEnum.WAITING));
-        sales.setSalesEntries(List.of(new SaleEntry(1, sales, macaronchocolate), new SaleEntry(2, sales, macaronstrawberry)));
+        sales.setSalesEntries(List.of(new SaleEntry(1, sales, macaronchocolate), new SaleEntry(2, sales, macaronvanilla)));
         Sales sales2 = new Sales("user2", new SalesStatus(SalesStatusEnum.WAITING));
         sales2.setSalesEntries(List.of(new SaleEntry(10, sales2, macaronchocolate)));
         salesRepository.save(sales);
@@ -89,10 +88,10 @@ class SalesIntegrationTest {
     @Test
     @WithMockUser(username = "user", roles = {"USER"})
     void testGetOneSale() throws Exception {
-        Macaron macaronstrawberry = new Macaron("strawberry", new BigDecimal("0.50"), 10);
+        Macaron macaronvanilla = new Macaron("vanilla", new BigDecimal("0.50"), 10);
         Macaron macaronchocolate = new Macaron("chocolate", new BigDecimal("0.30"), 10);
         Sales sales = new Sales("user", new SalesStatus(SalesStatusEnum.WAITING));
-        sales.setSalesEntries(List.of(new SaleEntry(1, sales, macaronchocolate), new SaleEntry(2, sales, macaronstrawberry)));
+        sales.setSalesEntries(List.of(new SaleEntry(1, sales, macaronchocolate), new SaleEntry(2, sales, macaronvanilla)));
         sales = salesRepository.save(sales);
 
         mockMvc.perform(get("/v1/sales/" + sales.getId())
@@ -103,7 +102,7 @@ class SalesIntegrationTest {
                         + "\"id\":" + sales.getId() + ","
                         + "\"saleEntryDto\":["
                         + "{\"numberOfMacarons\":1,\"macaron\":{\"taste\":\"chocolate\",\"unitPrice\":0.30,\"stock\":10}},"
-                        + "{\"numberOfMacarons\":2,\"macaron\":{\"taste\":\"strawberry\",\"unitPrice\":0.50,\"stock\":10}}"
+                        + "{\"numberOfMacarons\":2,\"macaron\":{\"taste\":\"vanilla\",\"unitPrice\":0.50,\"stock\":10}}"
                         + "],"
                         + "\"firstnameReservation\":\"user\","
                         + "\"totalPricePaid\":0,"
