@@ -2,9 +2,10 @@ spring:
   application:
     name: macaronsBackend
   datasource:
-      url: jdbc:postgresql://localhost:5432/macaron_paradigm
-      username: macaron
-      password: macaron
+      url: jdbc:postgresql://localhost:5234/macaronsdb
+      username: user # local database instead of container version is macaron
+      password: password # macaron
+
 
 logging:
   level:
@@ -16,4 +17,15 @@ logging:
       clementjaminion:
         macaronsbackend: DEBUG
 
-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
