@@ -5,7 +5,8 @@ import fr.clementjaminion.macaronsbackend.exceptions.MacaronsFunctionalException
 import fr.clementjaminion.macaronsbackend.models.dto.command.CreateMacaronDto;
 import fr.clementjaminion.macaronsbackend.models.dto.command.ModifyMacaronDto;
 import fr.clementjaminion.macaronsbackend.models.dto.returns.MacaronDto;
-import fr.clementjaminion.macaronsbackend.service.MacaronService;
+import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronManagingService;
+import fr.clementjaminion.macaronsbackend.service.macaron_service.MacaronStockManagingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,10 +20,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/manage")
 public class MacaronControllerAdmin {
 
-    private final MacaronService macaronService;
+    private final MacaronStockManagingService macaronStockManagingService;
+    private final MacaronManagingService macaronManagingService;
 
-    public MacaronControllerAdmin(MacaronService macaronService) {
-        this.macaronService = macaronService;
+
+    public MacaronControllerAdmin(MacaronStockManagingService macaronStockManagingService, MacaronManagingService macaronManagingService) {
+        this.macaronStockManagingService = macaronStockManagingService;
+        this.macaronManagingService = macaronManagingService;
     }
     @GetMapping("v1/role")
     public String getRole() {
@@ -41,7 +45,7 @@ public class MacaronControllerAdmin {
     public MacaronDto creationMacaron(
             @Valid @RequestBody CreateMacaronDto validcreateMacaronDto
     ) throws MacaronsFunctionalException {
-        return macaronService.createMacaron(validcreateMacaronDto);
+        return macaronManagingService.createMacaron(validcreateMacaronDto);
     }
 
     @Operation(summary = "Update a macaron", description = "Update a macaron with a taste, a price and a stock")
@@ -55,7 +59,7 @@ public class MacaronControllerAdmin {
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("v1/macarons/{taste}")
     public MacaronDto updateMacaron(@PathVariable String taste, @Valid @RequestBody ModifyMacaronDto validmodifyMacaronDto) throws MacaronNotFoundException {
-        return macaronService.updateMacaron(taste, validmodifyMacaronDto);
+        return macaronManagingService.updateMacaron(taste, validmodifyMacaronDto);
     }
 
     @Operation(summary = "Adding some stock to a macaron", description = "Add some stock to a macaron")
@@ -67,7 +71,7 @@ public class MacaronControllerAdmin {
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("v1/macarons/{taste}/add")
     public MacaronDto addStockMacaron(@PathVariable String taste, @Valid @RequestBody Integer addingStock) throws MacaronNotFoundException {
-        return macaronService.addStockMacaron(taste, addingStock);
+        return macaronStockManagingService.addStockMacaron(taste, addingStock);
     }
 
 
@@ -79,7 +83,7 @@ public class MacaronControllerAdmin {
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("v1/macarons/{taste}")
     public void deleteOneMacaron(@PathVariable String taste) {
-        macaronService.deleteOneMacaron(taste);
+        macaronManagingService.deleteOneMacaron(taste);
     }
 
     @Operation(summary = "Reduce the stock of a macaron", description = "Reduce the stock of a macaron")
@@ -91,6 +95,6 @@ public class MacaronControllerAdmin {
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("v1/macarons/{taste}/reduce")
     public MacaronDto reduceStockMacaron(@PathVariable String taste, @Valid @RequestBody Integer reducingStock) throws MacaronNotFoundException {
-        return macaronService.reduceStockMacaron(taste, reducingStock);
+        return macaronStockManagingService.reduceStockMacaron(taste, reducingStock);
     }
 }

@@ -1,6 +1,5 @@
 spring:
   datasource:
-    driver-class-name: org.h2.Driver
-    password: password
-    url: 'jdbc:h2:mem:testdb'
-    username: sa
+    url: jdbc:postgresql://localhost:5432/macaron_paradigm_test
+    username: macaron
+    password: macaron
