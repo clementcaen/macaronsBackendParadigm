@@ -9,6 +9,9 @@ import javafx.fxml.Initializable;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
+
+import javafx.stage.Stage;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,10 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 public class HelloController implements Initializable {
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-    }
-
     public void raspberry() throws IOException {
         openPostScreen("raspberry");
     }
@@ -44,32 +43,33 @@ public class HelloController implements Initializable {
         openPostScreen("grape");
     }
 
-    public void openPostScreen(String taste) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("post-screen.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 600, 350);
-        PostScreenController controller = fxmlLoader.getController();
-        controller.initializeByHelloController(taste);
-        HelloApplication.getCentralStage().setTitle(taste);
-        HelloApplication.getCentralStage().setScene(scene);
-        HelloApplication.getCentralStage().show();
+    public void openPostScreen(String taste) {
+        loadFXML("post-screen.fxml", controller -> {
+            PostScreenController postController = (PostScreenController) controller;
+            postController.initializeByHelloController(taste);
+        }, taste);
     }
-
-    public void openProviderScreen() {
+    private void loadFXML(String fxmlFile, Consumer<Object> controllerInitializer, String title) {
         try {
-            if (!isAdmin()) {
-                showForbiddenMessage();
-                return;
-            }
-
-            FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("provider-view.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource(fxmlFile));
             Scene scene = new Scene(fxmlLoader.load(), 600, 350);
-            HelloApplication.getCentralStage().setTitle("Provider");
-            HelloApplication.getCentralStage().setScene(scene);
-            HelloApplication.getCentralStage().show();
-        } catch (Exception e) {
+            controllerInitializer.accept(fxmlLoader.getController());
+            Stage stage = HelloApplication.getCentralStage();
+            stage.setTitle(title);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
+    public void openProviderScreen() {
+        if (!isAdmin()) {
+            showForbiddenMessage();
+            return;
+        }
+        loadFXML("provider-view.fxml", controller -> {}, "Provider");
+    }
+
 
     private boolean isAdmin() {
         try {
@@ -90,5 +90,10 @@ public class HelloController implements Initializable {
     private void showForbiddenMessage() {
         Alert alert = new Alert(AlertType.ERROR, "You do not have permission to access this screen.", ButtonType.OK);
         alert.showAndWait();
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        
     }
 }

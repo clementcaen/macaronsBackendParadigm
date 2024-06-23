@@ -1,5 +1,6 @@
 package fr.clementjaminion.macaronsbackend.service.macaron_service;
 
+import fr.clementjaminion.macaronsbackend.config.ExceptionUtil;
 import fr.clementjaminion.macaronsbackend.exceptions.MacaronBadRequestException;
 import fr.clementjaminion.macaronsbackend.exceptions.MacaronNotFoundException;
 import fr.clementjaminion.macaronsbackend.models.Macaron;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 @Service
 public class MacaronStockManagingServiceImpl implements MacaronStockManagingService{
@@ -26,42 +28,35 @@ public class MacaronStockManagingServiceImpl implements MacaronStockManagingServ
     @Override
     public void verifyStock (
             List<CreateSaleEntryDto> saleEntriesdto
-    ) throws MacaronBadRequestException, MacaronNotFoundException {
-        for (CreateSaleEntryDto createSaleEntryDto : saleEntriesdto) {
-            Optional<Macaron> macaronOptional = macaronRepository.findByTaste(createSaleEntryDto.tasteMacaron());
-            if (macaronOptional.isPresent()){
-                if(createSaleEntryDto.numberOfMacarons() > macaronOptional.get().getStock()) {
-                    throw new MacaronBadRequestException("Not enough macarons in stock", "NOT_ENOUGH_MACARONS");
-                }
-            }else {
-                throw new MacaronNotFoundException("A Macaron was not found in your order", MACARONNOTFOUNDCODE);
+    ){
+        saleEntriesdto.forEach(ExceptionUtil.wrap(createSaleEntryDto -> {
+            Macaron macaron = macaronRepository.findByTaste(createSaleEntryDto.tasteMacaron())
+                    .orElseThrow(() -> new MacaronNotFoundException("A Macaron was not found in your order", MACARONNOTFOUNDCODE));
+            if (createSaleEntryDto.numberOfMacarons() > macaron.getStock()) {
+                throw new MacaronBadRequestException("Not enough macarons in stock", "NOT_ENOUGH_MACARONS");
             }
+        }));
+    }
+    private MacaronDto updateStock(String taste, int stockDelta, Predicate<Macaron> stockCheck) throws MacaronNotFoundException {
+        Macaron macaron = macaronRepository.findByTaste(taste)
+                .orElseThrow(() -> new MacaronNotFoundException(MACARONNOTFOUNDTEXT, MACARONNOTFOUNDCODE));
+        macaron.setStock(macaron.getStock() + stockDelta);
+        if (!stockCheck.test(macaron)) {
+            throw new MacaronNotFoundException("Invalid stock after update", MACARONNOTFOUNDCODE);
         }
+        macaron = macaronRepository.save(macaron);
+        return new MacaronDto(macaron.getTaste(), macaron.getUnitPrice(), macaron.getStock());
     }
 
     @CacheEvict(value = {"macarons", "allMacarons"}, key = "#taste")
     @Override
     public MacaronDto addStockMacaron(String taste, int addingStock) throws MacaronNotFoundException {
-        Optional<Macaron> macaronOptional = macaronRepository.findByTaste(taste);
-        if (macaronOptional.isEmpty()) {
-            throw new MacaronNotFoundException(MACARONNOTFOUNDTEXT, MACARONNOTFOUNDCODE);
-        }
-        Macaron macaron = macaronOptional.get();
-        macaron.setStock(macaron.getStock() + addingStock);
-        macaron = macaronRepository.save(macaron);
-        return new MacaronDto(macaron.getTaste(), macaron.getUnitPrice(), macaron.getStock());
+        return updateStock(taste, addingStock, macaron -> macaron.getStock() >= 0);
     }
 
     @CacheEvict(value = {"macarons", "allMacarons"}, key = "#taste")
     @Override
     public MacaronDto reduceStockMacaron(String taste, Integer reducingStock) throws MacaronNotFoundException {
-        Optional<Macaron> macaronOptional = macaronRepository.findByTaste(taste);
-        if (macaronOptional.isEmpty()) {
-            throw new MacaronNotFoundException(MACARONNOTFOUNDTEXT, MACARONNOTFOUNDCODE);
-        }
-        Macaron macaron = macaronOptional.get();
-        macaron.setStock(macaron.getStock() - reducingStock);
-        macaron = macaronRepository.save(macaron);
-        return new MacaronDto(macaron.getTaste(), macaron.getUnitPrice(), macaron.getStock());
+        return updateStock(taste, -reducingStock, macaron -> macaron.getStock() >= 0);
     }
 }

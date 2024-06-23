@@ -3,6 +3,7 @@ package fr.clementjaminion.macaronsbackend.service;
 import fr.clementjaminion.macaronsbackend.exceptions.MacaronBadRequestException;
 import fr.clementjaminion.macaronsbackend.exceptions.MacaronNotFoundException;
 import fr.clementjaminion.macaronsbackend.exceptions.MacaronsFunctionalException;
+import fr.clementjaminion.macaronsbackend.metrics.CustomMetrics;
 import fr.clementjaminion.macaronsbackend.models.*;
 import fr.clementjaminion.macaronsbackend.models.dto.command.CreateSaleDto;
 import fr.clementjaminion.macaronsbackend.models.dto.command.CreateSaleEntryDto;
@@ -35,13 +36,15 @@ public class SalesServiceImpl implements SalesService {
     private final MacaronStockManagingService macaronStockManagingService;
     private final MacaronRepo macaronRepo;
     private final SaleEntryRepo saleEntryRepo;
+    private final CustomMetrics customMetrics;
 
-    public SalesServiceImpl(SalesRepo salesRepository, SalesStatusRepository salesStatusRepository, MacaronStockManagingService macaronStockManagingService, MacaronRepo macaronRepo, SaleEntryRepo saleEntryRepo) {
+    public SalesServiceImpl(SalesRepo salesRepository, SalesStatusRepository salesStatusRepository, MacaronStockManagingService macaronStockManagingService, MacaronRepo macaronRepo, SaleEntryRepo saleEntryRepo, CustomMetrics customMetrics) {
         this.salesRepository = salesRepository;
         this.salesStatusRepository = salesStatusRepository;
         this.macaronStockManagingService = macaronStockManagingService;
         this.macaronRepo = macaronRepo;
         this.saleEntryRepo = saleEntryRepo;
+        this.customMetrics = customMetrics;
     }
 
     @Cacheable(value = "salesPrice", key = "#saleId")
@@ -105,6 +108,10 @@ public class SalesServiceImpl implements SalesService {
         saleCreated.setSalesEntries(saleEntries);
         saleCreated.setStatus(salesStatusRepository.findById(SalesStatusEnum.WAITING)//update the status
                 .orElseThrow(() -> new MacaronsFunctionalException(STATUSNOTFOUNDTEXT, STATUSNOTFOUNDCODE)));
+
+        // Increment the custom sales creation counter for prometheus
+        customMetrics.incrementSalesCreationCounter();
+
         return new SaleDto(salesRepository.save(saleCreated));
     }
 

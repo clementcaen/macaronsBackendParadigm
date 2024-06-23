@@ -44,16 +44,15 @@ public class MacaronManagingServiceImpl implements MacaronManagingService{
     @CacheEvict(value = {"macarons", "allMacarons"}, key = "#taste")
     @Override
     public MacaronDto updateMacaron(String taste, ModifyMacaronDto modifyMacaronDto) throws MacaronNotFoundException {
-        Optional<Macaron> macaronOptional = macaronRepository.findByTaste(taste);
-        if (macaronOptional.isEmpty()) {
-            throw new MacaronNotFoundException(MACARONNOTFOUNDTEXT, MACARONNOTFOUNDCODE);
-        }
-        Macaron macaron = macaronOptional.get();
-        if (modifyMacaronDto.price() != null) {
-            macaron.setUnitPrice(modifyMacaronDto.price());
-        }
-        macaron.setStock(modifyMacaronDto.stock());
-        macaron = macaronRepository.save(macaron);
-        return new MacaronDto(macaron.getTaste(), macaron.getUnitPrice(), macaron.getStock());
+        return macaronRepository.findByTaste(taste)
+                .map(macaron -> {
+                    if (modifyMacaronDto.price() != null) {
+                        macaron.setUnitPrice(modifyMacaronDto.price());
+                    }
+                    macaron.setStock(modifyMacaronDto.stock());
+                    return macaronRepository.save(macaron);
+                })
+                .map(macaron -> new MacaronDto(macaron.getTaste(), macaron.getUnitPrice(), macaron.getStock()))
+                .orElseThrow(() -> new MacaronNotFoundException(MACARONNOTFOUNDTEXT, MACARONNOTFOUNDCODE));
     }
 }
